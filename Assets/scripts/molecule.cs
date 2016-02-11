@@ -3,42 +3,52 @@ using System.Collections;
 
 public class molecule : MonoBehaviour {
 
-    private GameObject[] molecules;
+    private Transform[] molecules;
     private GameObject target;
     public float speed = 1f;
     private Vector3 direc;
-    private Vector3 closest;
 
-    void OnCollisionEnter2D(Collision2D collision) {
-        Debug.Log(closest);
-        think();
+    void Start() {
+        GameObject[] objs = GameObject.FindGameObjectsWithTag("Feed");
+        molecules = new Transform[objs.Length];
+        for (int i = 0; i < objs.Length; i++)
+            molecules[i] = objs[i].transform;
     }
 
-    private void think() {
-       // molecules = GameObject.FindGameObjectsWithTag("Feed");
-        for (int i = 0; i < molecules.Length; i++) {
-            Debug.Log(molecules[i]);
-            if (molecules[i] != null) {
-                target = molecules[i];
-                if (Vector3.Distance(transform.position, target.transform.position) <= Vector3.Distance(transform.position, closest)) {
-                    direc = (target.transform.position - this.transform.position).normalized * speed;
-                    closest = direc;
+    void Update() {
+        direc = (findClosest(molecules).position - transform.position).normalized * speed;
+        transform.Translate(direc * Time.deltaTime);
+    }
+
+    void OnCollisionEnter2D(Collision2D collision) {
+        if(collision.gameObject.tag == "Feed")
+            DestroyObject(collision.collider.gameObject);
+    }
+
+    private Transform findClosest(Transform[] objs) {
+        float closest = -1;
+        float objDistance;
+        Transform result = transform;
+        for (int i = 0; i < objs.Length; i++) {
+            if (objs[i] != null) {
+                objDistance = (objs[i].position - transform.position).sqrMagnitude;
+                if (closest < 0) {
+                    closest = objDistance;
+                }
+                if (objDistance <= closest) {
+                    closest = objDistance;
+                    result = objs[i];
                 }
             }
         }
+        return result;
     }
 
-	// Use this for initialization
-	void Start () {
-        //molecules = UnityEngine.Object.FindObjectsOfType<GameObject>();
-        molecules = GameObject.FindGameObjectsWithTag("Feed");
-        closest = (molecules[0].transform.position - this.transform.position).normalized * speed;
-
-        think();
-    }
-	
-	// Update is called once per frame
-	void Update () {
-        this.transform.Translate(closest * Time.deltaTime);
-    }
+    //private void think() {
+    //    for (int i = 0; i < molecules.Length; i++)
+    //        if (molecules[i] != null)
+    //            if (target == null || (Vector3.Distance(molecules[i].transform.position, transform.position) < Vector3.Distance(target.transform.position, transform.position)))
+    //                target = molecules[i];
+    //    direc = (target.transform.position - transform.position).normalized * speed;
+    //}
 }
