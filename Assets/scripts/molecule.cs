@@ -7,8 +7,11 @@ public class molecule : MonoBehaviour {
     private GameObject target;
     public float speed = 1f;
     private Vector3 direc;
+    public float nutrient;
 
     void Start() {
+        nutrient += transform.localScale.x;
+
         GameObject[] objs = GameObject.FindGameObjectsWithTag("Feed");
         molecules = new Transform[objs.Length];
         for (int i = 0; i < objs.Length; i++)
@@ -21,8 +24,14 @@ public class molecule : MonoBehaviour {
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
-        if(collision.gameObject.tag == "Feed")
+        if (transform.localScale.x > collision.transform.localScale.x) {
+            if(collision.gameObject.tag == "Feed")
+                nutrient += collision.transform.GetComponent<feed>().nutrient;
+            else
+                nutrient += collision.transform.GetComponent<molecule>().nutrient;
             DestroyObject(collision.collider.gameObject);
+            transform.localScale = new Vector3(nutrient, nutrient, nutrient);
+        }
     }
 
     private Transform findClosest(Transform[] objs) {
@@ -43,12 +52,4 @@ public class molecule : MonoBehaviour {
         }
         return result;
     }
-
-    //private void think() {
-    //    for (int i = 0; i < molecules.Length; i++)
-    //        if (molecules[i] != null)
-    //            if (target == null || (Vector3.Distance(molecules[i].transform.position, transform.position) < Vector3.Distance(target.transform.position, transform.position)))
-    //                target = molecules[i];
-    //    direc = (target.transform.position - transform.position).normalized * speed;
-    //}
 }
