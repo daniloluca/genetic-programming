@@ -24,18 +24,18 @@ public class molecule : MonoBehaviour {
         target = findClosest(molecules);
         direc = (target.position - transform.position).normalized * speed;
         if (target.gameObject.tag == "Molecule")
-            if (target.GetComponent<molecule>().nutrient > transform.GetComponent<molecule>().nutrient)
+            if (target.GetComponent<molecule>().nutrient >= transform.GetComponent<molecule>().nutrient)
                 direc = -direc;
         transform.Translate(direc * Time.deltaTime);
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
-        if (transform.localScale.x > collision.transform.localScale.x) {
+        if (transform.localScale.x > collision.transform.localScale.x && collision.gameObject.tag != "Limit") {
             if(collision.gameObject.tag == "Feed")
                 nutrient += collision.transform.GetComponent<feed>().nutrient;
-            else
+            else if(collision.gameObject.tag == "Molecule")
                 nutrient += collision.transform.GetComponent<molecule>().nutrient;
-            transform.GetComponent<molecule>().speed -= 0.1f;
+            //transform.GetComponent<molecule>().speed -= 0.1f;
             DestroyObject(collision.collider.gameObject);
             transform.localScale = new Vector3(nutrient, nutrient, nutrient);
         }

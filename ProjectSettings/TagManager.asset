@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Feed
   - Molecule
+  - Limit
   layers:
   - Default
   - TransparentFX
